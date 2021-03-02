@@ -1325,6 +1325,20 @@ impl<'de> Visitor<'de> for KeyClassifier {
         formatter.write_str("a string key")
     }
 
+    /// The input contains an `i64`.
+    ///
+    /// Because of javascript's implicit type conversions, an integer-valued,
+    /// string key field processed through neon-serde will be passed as an
+    /// i64.  So, we need to convert to strings, since that is the only type
+    /// that serde_json accepts.
+    fn visit_i64<E>(self, v: i64) -> Result<Self::Value, E>
+    where
+        E: de::Error,
+    {
+        let s = format!("{}", v);
+        self.visit_str(&s)
+    }
+
     fn visit_str<E>(self, s: &str) -> Result<Self::Value, E>
     where
         E: de::Error,
